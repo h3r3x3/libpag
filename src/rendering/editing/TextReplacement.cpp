@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "TextReplacement.h"
+#include "rendering/caches/TextContentCache.h"
 #include "rendering/utils/LockGuard.h"
 
 namespace pag {

@@ -18,14 +18,20 @@
 
 #pragma once
 
-#include "rendering/caches/TextContentCache.h"
+#include "pag/file.h"
+#include "pag/pag.h"
 
 namespace pag {
+
+class TextContentCache;
+class MutableGlyph;
+
 class TextReplacement {
  public:
   void setAnimators(std::vector<TextAnimator*>* animators);
 
-  void setLayoutGlyphs(const std::vector<GlyphHandle>& glyphs, Enum justification);
+  void setLayoutGlyphs(const std::vector<std::shared_ptr<MutableGlyph>>& glyphs,
+                       Enum justification);
 
  private:
   explicit TextReplacement(PAGTextLayer* textLayer);
@@ -40,7 +46,7 @@ class TextReplacement {
   Property<TextDocumentHandle>* sourceText = nullptr;
   PAGTextLayer* pagLayer = nullptr;
   std::vector<TextAnimator*>* _animators = nullptr;
-  std::vector<GlyphHandle> layoutGlyphs;
+  std::vector<std::shared_ptr<MutableGlyph>> layoutGlyphs;
   friend class PAGTextLayer;
 };
 }  // namespace pag

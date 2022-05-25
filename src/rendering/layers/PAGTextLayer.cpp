@@ -19,6 +19,7 @@
 #include "base/utils/TimeUtil.h"
 #include "pag/pag.h"
 #include "rendering/caches/LayerCache.h"
+#include "rendering/caches/TextContentCache.h"
 #include "rendering/editing/TextReplacement.h"
 #include "rendering/utils/LockGuard.h"
 
