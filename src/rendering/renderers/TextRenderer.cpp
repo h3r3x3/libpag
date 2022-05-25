@@ -481,6 +481,7 @@ std::unique_ptr<TextContent> RenderTexts(const std::shared_ptr<TextGlyphs>& text
           glyphLines.emplace_back(glyphLine);
           glyphLine.clear();
         }
+      } else {
         glyphLine.emplace_back(g);
       }
       textBounds.join(g->getBounds());

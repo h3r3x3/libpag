@@ -72,7 +72,9 @@ void TextReplacement::setLayoutGlyphs(const std::vector<GlyphHandle>& glyphs, En
   textDocument->text = text;
   textDocument->justification = justification;
   layoutGlyphs = glyphs;
-  textContentCache->updateStaticTimeRanges();
+  if (textContentCache) {
+    textContentCache->updateStaticTimeRanges();
+  }
   pagLayer->notifyModified(true);
   pagLayer->invalidateCacheScale();
 }
