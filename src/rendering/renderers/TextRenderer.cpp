@@ -474,8 +474,8 @@ std::unique_ptr<TextContent> RenderTexts(const std::shared_ptr<TextGlyphs>& text
     glyphLines = ApplyMatrixToGlyphs(textLayout, glyphInfoLines, &glyphList);
     textLayout.coordinateMatrix.mapRect(&textBounds);
   } else {
+    std::vector<GlyphHandle> glyphLine = {};
     for (auto g : layoutGlyphs) {
-      std::vector<GlyphHandle> glyphLine = {};
       if (g->getName() == "\n") {
         if (!glyphLine.empty()) {
           glyphLines.emplace_back(glyphLine);
@@ -485,6 +485,9 @@ std::unique_ptr<TextContent> RenderTexts(const std::shared_ptr<TextGlyphs>& text
         glyphLine.emplace_back(g);
       }
       textBounds.join(g->getBounds());
+    }
+    if (!glyphLine.empty()) {
+      glyphLines.emplace_back(glyphLine);
     }
   }
 
