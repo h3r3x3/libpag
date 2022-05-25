@@ -635,6 +635,8 @@ class PAG_API PAGTextLayer : public PAGLayer {
 
   TextReplacement* textReplacementForWrite();
 
+  std::vector<TextAnimator*> textAnimators();
+
  protected:
   void replaceTextInternal(std::shared_ptr<TextDocument> textData);
   void setMatrixInternal(const Matrix& matrix) override;

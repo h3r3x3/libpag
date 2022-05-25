@@ -214,4 +214,8 @@ TextReplacement* PAGTextLayer::textReplacementForWrite() {
   return replacement;
 }
 
+std::vector<TextAnimator*> PAGTextLayer::textAnimators() {
+  return static_cast<TextLayer*>(layer)->animators;
+}
+
 }  // namespace pag

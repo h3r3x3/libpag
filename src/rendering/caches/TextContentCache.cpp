@@ -24,7 +24,7 @@
 namespace pag {
 TextContentCache::TextContentCache(TextLayer* layer)
     : ContentCache(layer), sourceText(layer->sourceText), pathOption(layer->pathOption),
-      moreOption(layer->moreOption), animators(&layer->animators) {
+      moreOption(layer->moreOption), _animators(&layer->animators) {
   initTextGlyphs();
 }
 
@@ -34,7 +34,7 @@ TextContentCache::TextContentCache(TextLayer* layer, ID cacheID,
                                    const std::vector<GlyphHandle>& layoutGlyphs)
     : ContentCache(layer), cacheID(cacheID), sourceText(sourceText), pathOption(layer->pathOption),
       moreOption(layer->moreOption),
-      animators(animators == nullptr ? &layer->animators : animators), layoutGlyphs(layoutGlyphs) {
+      _animators(animators == nullptr ? &layer->animators : animators), layoutGlyphs(layoutGlyphs) {
   initTextGlyphs();
 }
 
@@ -68,7 +68,7 @@ static float GetMaxScale(std::vector<TextAnimator*>* animators) {
 }
 
 void TextContentCache::initTextGlyphs() {
-  auto scale = GetMaxScale(animators);
+  auto scale = GetMaxScale(_animators);
   if (sourceText->animatable()) {
     auto animatableProperty = reinterpret_cast<AnimatableProperty<TextDocumentHandle>*>(sourceText);
     auto textDocument = animatableProperty->keyframes[0]->startValue.get();
@@ -94,7 +94,7 @@ void TextContentCache::excludeVaryingRanges(std::vector<TimeRange>* timeRanges) 
   if (moreOption) {
     moreOption->excludeVaryingRanges(timeRanges);
   }
-  for (auto animator : *animators) {
+  for (auto animator : *_animators) {
     animator->excludeVaryingRanges(timeRanges);
   }
 }
@@ -110,7 +110,7 @@ GraphicContent* TextContentCache::createContent(Frame layerFrame) const {
     return nullptr;
   }
   auto content =
-      RenderTexts(iter->second, layoutGlyphs, pathOption, moreOption, animators, layerFrame)
+      RenderTexts(iter->second, layoutGlyphs, pathOption, moreOption, _animators, layerFrame)
           .release();
   if (_cacheEnabled) {
     content->colorGlyphs = Picture::MakeFrom(getCacheID(), content->colorGlyphs);
@@ -134,6 +134,10 @@ bool TextContentCache::checkFrameChanged(Frame contentFrame, Frame lastContentFr
 void TextContentCache::updateStaticTimeRanges() {
   auto layerCache = LayerCache::Get(layer);
   staticTimeRanges = layerCache->calculateStaticTimeRanges(this);
+}
+
+void TextContentCache::setAnimators(std::vector<pag::TextAnimator*>* animators) {
+  _animators = animators;
 }
 
 }  // namespace pag

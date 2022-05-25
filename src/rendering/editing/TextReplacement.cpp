@@ -26,11 +26,14 @@ TextReplacement::TextReplacement(PAGTextLayer* pagLayer) : pagLayer(pagLayer) {
   auto textData = TextDocumentHandle(new TextDocument());
   *textData = *(textLayer->sourceText->value);
   sourceText->value = textData;
+  _animators = new std::vector<TextAnimator*>;
+  *_animators = textLayer->animators;
 }
 
 TextReplacement::~TextReplacement() {
   delete textContentCache;
   delete sourceText;
+  delete _animators;
 }
 
 Content* TextReplacement::getContent(Frame contentFrame) {
@@ -48,6 +51,7 @@ TextDocument* TextReplacement::getTextDocument() {
 }
 
 void TextReplacement::setLayoutGlyphs(const std::vector<GlyphHandle>& glyphs, Enum justification) {
+  clearCache();
   LockGuard autoLock(pagLayer->rootLocker);
   std::string text = "";
   std::shared_ptr<MutableGlyph> firstGlyph = nullptr;
@@ -80,10 +84,8 @@ void TextReplacement::setLayoutGlyphs(const std::vector<GlyphHandle>& glyphs, En
 }
 
 void TextReplacement::resetText() {
-  auto textLayer = static_cast<TextLayer*>(pagLayer->layer);
-  auto textData = TextDocumentHandle(new TextDocument());
-  *textData = *(textLayer->sourceText->value);
-  sourceText->value = textData;
+  sourceText->value = std::make_shared<TextDocument>();
+  *sourceText->value = *static_cast<TextLayer*>(pagLayer->layer)->sourceText->value;
 }
 
 void TextReplacement::clearCache() {
@@ -93,14 +95,12 @@ void TextReplacement::clearCache() {
 
 void TextReplacement::setAnimators(std::vector<pag::TextAnimator*>* animators) {
   LockGuard autoLock(pagLayer->rootLocker);
+  clearCache();
   if (animators == nullptr) {
-    auto textLayer = static_cast<TextLayer*>(pagLayer->layer);
-    _animators = &textLayer->animators;
+    *_animators = static_cast<TextLayer*>(pagLayer->layer)->animators;
   } else {
-    _animators = animators;
+    *_animators = *animators;
   }
-  _animators = animators;
-  textContentCache->updateStaticTimeRanges();
   pagLayer->notifyModified(true);
   pagLayer->invalidateCacheScale();
 }

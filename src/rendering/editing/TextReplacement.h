@@ -23,30 +23,24 @@
 namespace pag {
 class TextReplacement {
  public:
-  explicit TextReplacement(PAGTextLayer* textLayer);
-  ~TextReplacement();
-
-  Content* getContent(Frame contentFrame);
-
-  TextDocument* getTextDocument();
-
   void setAnimators(std::vector<TextAnimator*>* animators);
 
   void setLayoutGlyphs(const std::vector<GlyphHandle>& glyphs, Enum justification);
 
-  void clearCache();
-
-  void resetText();
-
-  void resetAnimators();
-
-  TextContentCache* contentCache();
-
  private:
+  explicit TextReplacement(PAGTextLayer* textLayer);
+  ~TextReplacement();
+  void clearCache();
+  void resetText();
+  TextContentCache* contentCache();
+  Content* getContent(Frame contentFrame);
+
+  TextDocument* getTextDocument();
   TextContentCache* textContentCache = nullptr;
   Property<TextDocumentHandle>* sourceText = nullptr;
   PAGTextLayer* pagLayer = nullptr;
   std::vector<TextAnimator*>* _animators = nullptr;
   std::vector<GlyphHandle> layoutGlyphs;
+  friend class PAGTextLayer;
 };
 }  // namespace pag
