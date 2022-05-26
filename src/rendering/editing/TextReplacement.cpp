@@ -21,12 +21,54 @@
 #include "rendering/utils/LockGuard.h"
 
 namespace pag {
+
+void TextReplacement::setAnimators(std::vector<pag::TextAnimator*>* animators) {
+  LockGuard autoLock(pagLayer->rootLocker);
+  clearCache();
+  if (animators == nullptr) {
+    *_animators = static_cast<TextLayer*>(pagLayer->layer)->animators;
+  } else {
+    *_animators = *animators;
+  }
+  pagLayer->notifyModified(true);
+  pagLayer->invalidateCacheScale();
+}
+
+void TextReplacement::setLayoutGlyphs(const std::vector<GlyphHandle>& glyphs, Enum justification) {
+  LockGuard autoLock(pagLayer->rootLocker);
+  clearCache();
+  std::string text;
+  for (auto& g : glyphs) {
+    text.append(g->getName());
+  }
+  auto textDocument = sourceText->value;
+  if (!glyphs.empty()) {
+    std::shared_ptr<MutableGlyph> firstGlyph = glyphs.front();
+    textDocument->fontSize = firstGlyph->getFont().getSize();
+    textDocument->fauxBold = firstGlyph->getFont().isFauxBold();
+    textDocument->fauxItalic = firstGlyph->getFont().isFauxItalic();
+    textDocument->strokeColor = firstGlyph->getStrokeColor();
+    textDocument->strokeWidth = firstGlyph->getStrokeWidth();
+    textDocument->strokeOverFill = firstGlyph->getStrokeOverFill();
+    textDocument->fillColor = firstGlyph->getFillColor();
+    textDocument->direction =
+        firstGlyph->isVertical() ? TextDirection::Vertical : TextDirection::Default;
+  }
+  textDocument->text = text;
+  textDocument->justification = justification;
+  layoutGlyphs = glyphs;
+  if (textContentCache) {
+    textContentCache->updateStaticTimeRanges();
+  }
+  pagLayer->notifyModified(true);
+  pagLayer->invalidateCacheScale();
+}
+
 TextReplacement::TextReplacement(PAGTextLayer* pagLayer) : pagLayer(pagLayer) {
   auto textLayer = static_cast<TextLayer*>(pagLayer->layer);
   sourceText = new Property<TextDocumentHandle>();
-  auto textData = TextDocumentHandle(new TextDocument());
-  *textData = *(textLayer->sourceText->value);
-  sourceText->value = textData;
+  sourceText->value = std::make_shared<TextDocument>();
+  *sourceText->value = *textLayer->sourceText->value;
   _animators = new std::vector<TextAnimator*>;
   *_animators = textLayer->animators;
 }
@@ -51,39 +93,6 @@ TextDocument* TextReplacement::getTextDocument() {
   return sourceText->value.get();
 }
 
-void TextReplacement::setLayoutGlyphs(const std::vector<GlyphHandle>& glyphs, Enum justification) {
-  clearCache();
-  LockGuard autoLock(pagLayer->rootLocker);
-  std::string text = "";
-  std::shared_ptr<MutableGlyph> firstGlyph = nullptr;
-  for (auto& g : glyphs) {
-    text.append(g->getName());
-    if (firstGlyph == nullptr) {
-      firstGlyph = g;
-    }
-  }
-  auto textDocument = sourceText->value;
-  if (firstGlyph) {
-    textDocument->fontSize = firstGlyph->getFont().getSize();
-    textDocument->fauxBold = firstGlyph->getFont().isFauxBold();
-    textDocument->fauxItalic = firstGlyph->getFont().isFauxItalic();
-    textDocument->strokeColor = firstGlyph->getStrokeColor();
-    textDocument->strokeWidth = firstGlyph->getStrokeWidth();
-    textDocument->strokeOverFill = firstGlyph->getStrokeOverFill();
-    textDocument->fillColor = firstGlyph->getFillColor();
-    textDocument->direction =
-        firstGlyph->isVertical() ? TextDirection::Vertical : TextDirection::Default;
-  }
-  textDocument->text = text;
-  textDocument->justification = justification;
-  layoutGlyphs = glyphs;
-  if (textContentCache) {
-    textContentCache->updateStaticTimeRanges();
-  }
-  pagLayer->notifyModified(true);
-  pagLayer->invalidateCacheScale();
-}
-
 void TextReplacement::resetText() {
   sourceText->value = std::make_shared<TextDocument>();
   *sourceText->value = *static_cast<TextLayer*>(pagLayer->layer)->sourceText->value;
@@ -92,18 +101,6 @@ void TextReplacement::resetText() {
 void TextReplacement::clearCache() {
   delete textContentCache;
   textContentCache = nullptr;
-}
-
-void TextReplacement::setAnimators(std::vector<pag::TextAnimator*>* animators) {
-  LockGuard autoLock(pagLayer->rootLocker);
-  clearCache();
-  if (animators == nullptr) {
-    *_animators = static_cast<TextLayer*>(pagLayer->layer)->animators;
-  } else {
-    *_animators = *animators;
-  }
-  pagLayer->notifyModified(true);
-  pagLayer->invalidateCacheScale();
 }
 
 TextContentCache* TextReplacement::contentCache() {

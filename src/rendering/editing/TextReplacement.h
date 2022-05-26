@@ -28,8 +28,16 @@ class MutableGlyph;
 
 class TextReplacement {
  public:
+  /**
+   * Set animators to PAGTextLayer.
+   * The pointer of PAGFile which animators came from must be referenced by caller.
+   */
   void setAnimators(std::vector<TextAnimator*>* animators);
 
+  /**
+   * Set typography information to PAGTextLayer.
+   * Enum of justification is ParagraphJustification.
+   */
   void setLayoutGlyphs(const std::vector<std::shared_ptr<MutableGlyph>>& glyphs,
                        Enum justification);
 
