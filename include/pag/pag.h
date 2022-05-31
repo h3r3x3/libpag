@@ -566,6 +566,8 @@ class TextAnimator;
 
 class MutableGlyph;
 
+class Transform2D;
+
 class PAG_API PAGTextLayer : public PAGLayer {
  public:
   static std::shared_ptr<PAGTextLayer> Make(int64_t duration, std::string text, float fontSize = 24,
