@@ -219,4 +219,8 @@ std::vector<TextAnimator*> PAGTextLayer::textAnimators() {
   return static_cast<TextLayer*>(layer)->animators;
 }
 
+const Transform2D* PAGTextLayer::transform() const {
+  return layer->transform;
+}
+
 }  // namespace pag
