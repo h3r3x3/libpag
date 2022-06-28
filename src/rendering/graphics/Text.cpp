@@ -257,7 +257,7 @@ static std::vector<TextStyle> GetGlyphStyles(const GlyphHandle& glyph) {
 
 void Text::draw(tgfx::Canvas* canvas, RenderCache* renderCache) const {
   auto textAtlas = renderCache->getTextAtlas(textGlyphs.get());
-  if (textAtlas != nullptr) {
+  if (false && textAtlas != nullptr) {
     draw(canvas, textAtlas);
   } else {
     drawTextRuns(canvas, 0);
