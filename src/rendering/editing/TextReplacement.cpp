@@ -104,6 +104,12 @@ void TextReplacement::clearCache() {
 }
 
 TextContentCache* TextReplacement::contentCache() {
+  if (textContentCache == nullptr) {
+    auto textLayer = static_cast<TextLayer*>(pagLayer->layer);
+    textContentCache =
+        new TextContentCache(textLayer, pagLayer->uniqueID(), sourceText, _animators, layoutGlyphs);
+    textContentCache->update();
+  }
   return textContentCache;
 }
 
